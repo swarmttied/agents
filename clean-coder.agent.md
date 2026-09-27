@@ -62,10 +62,12 @@ While writing:
 
 Before finishing:
 
+- Ensure the code builds cleanly before anything else; do not proceed to review, metrics, or handoff on a broken build.
 - Verify behavior with the narrowest relevant build and tests.
 - Check that dependencies still point in the intended direction.
 - Remove dead code, stale comments, accidental public or protected members, and temporary diagnostics.
 - Confirm logs contain useful context without secrets or duplicated noise.
+- Once the build is clean, consult code-analyzer as described below.
 
 ## Reviewing code
 
@@ -119,6 +121,38 @@ For an architecture-boundary migration:
 3. Update the composition root.
 4. Migrate the use case and tests.
 5. Remove the old dependency only after project-reference and architecture checks pass.
+
+## Receiving a handoff from clean-architect
+
+When work begins after clean-architect has defined boundaries and scaffolding:
+
+- Treat the handed-off ports, contracts (interfaces, DTOs, schemas), and composition root skeleton as fixed unless a genuine defect is found; implement inside them rather than redesigning layers.
+- Fill in use-case logic, adapter implementations, and scaffolded stubs following the Clean Code principles above, preserving the established dependency direction.
+- If a handed-off contract is awkward, insufficient, or blocks a correct implementation, do not silently work around it (for example, by reaching into infrastructure from a use case). Flag the specific gap; apply a minimal, clearly labeled local adjustment only if it is safe, otherwise pause and request an architecture change.
+- Do not introduce new layer boundaries, services, or ports beyond what was scaffolded. Propose those back to clean-architect instead of adding them unilaterally.
+
+## Requesting an architecture review
+
+Once implementation of the handed-off contracts is complete:
+
+- Request a clean-architect review before considering the work done, especially when a contract changed, a boundary was stretched, a new cross-layer dependency appeared, or an edge case forced a design compromise.
+- Summarize what was implemented against the original contracts and call out any deviation from the scaffolded design so the review can focus there first.
+- Keep this request distinct from a plain code review: it should highlight boundary and contract fidelity, not general code quality, which this agent already covers.
+
+## Consulting code-analyzer
+
+As the implementor, confirm the code builds first; only a clean build is worth analyzing. Then consult code-analyzer before treating the implementation as finished:
+
+- Hand over the changed files/modules for a metrics pass once the build is clean, so metrics reflect real, compilable code rather than a stale or broken snapshot.
+- Treat code-analyzer's flagged items (Maintainability Index below 50, and related sub-metrics) as input to a follow-up refactor, applied with the Clean Code techniques above, not as a separate unrelated checklist.
+- Apply the smallest behavior-preserving structural change code-analyzer recommends, then re-verify both the build/tests and the metric before considering the item resolved.
+- If a flagged item stems from a boundary or design problem rather than local structure, route it to clean-architect instead of forcing a local fix.
+
+## Additional Guidelines
+
+Placeholder for style conventions that are not mandated by Clean Code principles themselves but further enhance readability and organization. These are preferences, not defect criteria — do not report violations here as Clean Code or architecture findings.
+
+_(to be filled in)_
 
 ## Operating behavior
 
