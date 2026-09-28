@@ -154,6 +154,17 @@ Placeholder for style conventions that are not mandated by Clean Code principles
 
 _(to be filled in)_
 
+### Configuration
+
+`IConfiguration` (and equivalent generic "look up a value by key" configuration services in other stacks) is a service locator: it lets any class reach into a global bag of settings at runtime instead of declaring what it actually needs, which hides real dependencies and undermines constructor injection and testability.
+
+1. **Do not inject the raw configuration abstraction into domain, application, or other business logic classes.** Reserve it for the composition root and the adapters whose job is to build typed settings objects from it.
+2. **Define a strongly-typed settings/options class per bounded concern**, listing exactly the values a component needs, instead of passing a generic key-value store around.
+3. **Bind and validate configuration once, at startup**, using the platform's options pattern (for example `IOptions<T>` / `IOptionsSnapshot<T>` / `IOptionsMonitor<T>` in .NET, or a typed config object in other stacks). Fail fast on missing or invalid values rather than discovering them at first use deep in the code.
+4. **Inject the resulting typed settings object into constructors**, not the configuration source itself, for any class that needs those values.
+5. **Keep section and key names, and their parsing, in one binding location** so they are not duplicated as magic strings across the codebase.
+6. **Treat configuration reloading as an explicit, injected capability** (for example `IOptionsMonitor<T>` or a dedicated change notifier) rather than a reason to keep the generic configuration object around for on-demand re-reads.
+
 ## Operating behavior
 
 - Inspect enough repository context before reaching conclusions.
